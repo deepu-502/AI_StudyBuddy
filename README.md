@@ -15,7 +15,27 @@ Built with **NLTK** for natural language processing, it provides concise summari
 ---
 
 ## 🛠️ Installation
-1. Ensure you have **Python 3.9+** installed.
-2. Install dependencies:
-   ```bash
-   pip install nltk
+Clone the repository and install dependencies:
+
+```bash
+git clone https://github.com/deepu-502/AI_StudyBuddy.git
+cd AI_StudyBuddy
+python -m pip install -r requirements.txt
+```
+---
+
+▶️ Usage
+
+Run the program from the command line:
+
+```bash
+python study_buddy.py
+```
+You’ll see an interactive menu:
+```
+Choose an option:
+1. Summarize Notes
+2. Generate Quiz
+3. Exit
+
+```
