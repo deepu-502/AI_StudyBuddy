@@ -4,85 +4,53 @@ import random
 import streamlit as st
 from nltk.tokenize import sent_tokenize
 
+# Ensure NLTK looks inside your bundled nltk_data folder
 nltk.data.path.append(os.path.join(os.path.dirname(__file__), "nltk_data"))
 
-def preprocess_notes(notes):
+# --- Preprocessing ---
+def preprocess_notes(notes: str) -> str:
+    """Add spacing after punctuation for cleaner tokenization."""
     return notes.replace(".", ". ").replace("?", "? ").replace("!", "! ")
 
-def extract_subject(text, topic):
-    words = text.split()
-    if len(words) >= 2 and words[0][0].isupper() and words[1][0].isupper():
-        return " ".join(words[:2])
-    return topic
-
-def summarize_notes(notes, topic="Topic"):
+# --- Summarization ---
+def summarize_notes(notes: str, topic: str = "Topic") -> str:
+    """Summarize notes into bullet points using full sentences."""
     sents = sent_tokenize(preprocess_notes(notes))
     summary = []
-    for s in sents[:6]:
-        subj = extract_subject(s, topic)
-        lower = s.lower()
-        if " is " in lower:
-            summary.append(f"{subj} → {s.split(' is ',1)[1].strip()}")
-        elif " are " in lower:
-            summary.append(f"{subj} → {s.split(' are ',1)[1].strip()}")
-        elif " involves" in lower:
-            summary.append(f"{subj} → involves {s.split(' involves',1)[1].strip()}")
-        elif " uses" in lower or " use " in lower:
-            summary.append(f"{subj} → uses {s.split(' uses',1)[1].strip() if ' uses' in lower else s.split(' use ',1)[1].strip()}")
-        elif " essential" in lower or " important" in lower:
-            summary.append(f"{subj} → considered essential/important")
-        else:
-            summary.append(f"{subj} → {' '.join(s.split()[:8])}...")
-    return "Summary:\n" + "\n".join(f"- {p}" for p in summary)
+    for sent in sents:
+        summary.append(f"- {sent.strip()}")
+    return "\n".join(summary)
 
-def generate_quiz(notes, topic="Topic"):
+# --- Quiz Generation ---
+def generate_quiz(notes: str, topic: str = "Topic") -> str:
+    """Generate simple quiz questions from sentences."""
     sents = sent_tokenize(preprocess_notes(notes))
     quiz = []
-    seen = set()
-    for s in sents:
-        subj = extract_subject(s, topic)
-        lower = s.lower()
-        if " is " in lower:
-            q = f"What is {subj}?"
-        elif " are " in lower:
-            q = f"What are {subj}?"
-        elif " involves" in lower:
-            q = f"What does {subj} involve?"
-        elif " uses" in lower or " use " in lower:
-            q = f"How does {subj} use {s.split(' uses',1)[1].strip() if ' uses' in lower else s.split(' use ',1)[1].strip()}?"
-        elif " essential" in lower or " important" in lower:
-            q = f"Why is {subj} important?"
-        else:
-            q = random.choice([
-                f"Explain: {subj}",
-                f"Describe the role of {subj}",
-                f"Why is {subj} significant?"
-            ])
-        if q not in seen:
-            quiz.append(f"Q{len(quiz)+1}: {q}")
-            seen.add(q)
-    return quiz
+    for sent in sents:
+        words = sent.split()
+        if len(words) > 5:
+            # Pick a random word (not too short) to blank out
+            word = random.choice([w for w in words if len(w) > 3])
+            question = sent.replace(word, "_____", 1)
+            quiz.append(f"Q: {question}\nA: {word}")
+    return "\n\n".join(quiz)
 
-# Streamlit UI
+# --- Streamlit App ---
 def main():
     st.title("📚 AI-Powered Study Buddy")
 
-    topic = st.text_input("Enter your study topic:", "Topic")
+    topic = st.text_input("Enter your study topic:")
     notes = st.text_area("Paste your study notes here:")
 
-    option = st.radio("Choose an action:", ["Summarize Notes", "Generate Quiz"])
+    action = st.radio("Choose an action:", ["Summarize Notes", "Generate Quiz"])
 
     if st.button("Run"):
-        if not notes.strip():
-            st.warning("⚠️ Please provide notes.")
-        else:
-            if option == "Summarize Notes":
-                st.subheader("📝 Summary")
-                st.text(summarize_notes(notes, topic))
-            elif option == "Generate Quiz":
-                st.subheader("❓ Quiz Questions")
-                for q in generate_quiz(notes, topic):
-                    st.write(q)
+        if action == "Summarize Notes":
+            st.subheader("📝 Summary")
+            st.text(summarize_notes(notes, topic))
+        elif action == "Generate Quiz":
+            st.subheader("❓ Quiz")
+            st.text(generate_quiz(notes, topic))
 
 if __name__ == "__main__":
     main()
