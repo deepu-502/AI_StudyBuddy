@@ -8,8 +8,7 @@ Built with **NLTK** for natural language processing, it provides concise summari
 ## 🚀 Features
 - **Summarize Notes** → Extracts key ideas from study material in clear bullet points.
 - **Generate Quiz** → Creates unique, well-phrased questions for active recall.
-- **Interactive Menu** → Simple command-line interface with options to summarize, quiz, or exit.
-- **Topic-Aware** → Handles proper nouns (e.g., *World War II*) intelligently.
+- **Interactive Menu** → Simple command-line interface with options to summarize, quiz.
 - **Pronoun Filtering** → Avoids vague subjects like "it" or "this" for clarity.
 
 ---
