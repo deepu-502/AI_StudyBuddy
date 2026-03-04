@@ -24,16 +24,20 @@ def summarize_notes(notes: str, topic: str = "Topic") -> str:
         if " is " in sent_lower or " was " in sent_lower:
             summary.append(f"- Definition/Overview: {sent.strip()}")
 
+        # Causes / Effects
         elif "caused" in sent_lower or "led to" in sent_lower:
             summary.append(f"- Cause/Effect: {sent.strip()}")
-            
+
+        # Importance
         elif "important" in sent_lower or "essential" in sent_lower:
             summary.append(f"- Importance: {sent.strip()}")
-            
+
+        # Process / Steps
         elif "involves" in sent_lower or "process" in sent_lower:
             summary.append(f"- Process: {sent.strip()}")
 
         else:
+            # fallback: keep as a general point
             summary.append(f"- Key Point: {sent.strip()}")
 
     return "\n".join(summary)
@@ -51,20 +55,24 @@ def generate_quiz(notes: str, topic: str = "Topic") -> str:
 
         sent_lower = sent.lower()
 
+        # Definitions / Overview
         if " is " in sent_lower or " was " in sent_lower:
-            quiz.append(f"Q{i}: What is {topic}?")
-            
+            quiz.append(f"Q{i}: Define {topic} in your own words.")
+
+        # Causes / Effects
         elif "caused" in sent_lower or "led to" in sent_lower:
             quiz.append(f"Q{i}: What were the major consequences of {topic}?")
 
+        # Importance
         elif "important" in sent_lower or "essential" in sent_lower:
             quiz.append(f"Q{i}: Why is {topic} considered important?")
 
+        # Process / Steps
         elif "involves" in sent_lower or "process" in sent_lower:
-            quiz.append(f"Q{i}: What process does {topic} involve?")
+            quiz.append(f"Q{i}: Describe the process involved in {topic}.")
 
         else:
-            quiz.append(f"Q{i}: Summarize the key point about {topic}.")
+            quiz.append(f"Q{i}: Summarize a key point about {topic}.")
 
         count += 1
 
