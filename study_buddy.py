@@ -1,6 +1,5 @@
 import os
 import nltk
-import random
 import streamlit as st
 from nltk.tokenize import sent_tokenize
 
@@ -12,27 +11,63 @@ def preprocess_notes(notes: str) -> str:
     """Add spacing after punctuation for cleaner tokenization."""
     return notes.replace(".", ". ").replace("?", "? ").replace("!", "! ")
 
-# --- Summarization ---
+# --- Summarization (highlight main points) ---
 def summarize_notes(notes: str, topic: str = "Topic") -> str:
-    """Summarize notes into bullet points using full sentences."""
+    """Summarize notes into highlighted main points."""
     sents = sent_tokenize(preprocess_notes(notes))
     summary = []
+
     for sent in sents:
-        summary.append(f"- {sent.strip()}")
+        sent_lower = sent.lower()
+
+        # Definitions / Overview
+        if " is " in sent_lower or " was " in sent_lower:
+            summary.append(f"- Definition/Overview: {sent.strip()}")
+
+        elif "caused" in sent_lower or "led to" in sent_lower:
+            summary.append(f"- Cause/Effect: {sent.strip()}")
+            
+        elif "important" in sent_lower or "essential" in sent_lower:
+            summary.append(f"- Importance: {sent.strip()}")
+            
+        elif "involves" in sent_lower or "process" in sent_lower:
+            summary.append(f"- Process: {sent.strip()}")
+
+        else:
+            summary.append(f"- Key Point: {sent.strip()}")
+
     return "\n".join(summary)
 
-# --- Quiz Generation ---
+# --- Quiz Generation (main ideas as questions) ---
 def generate_quiz(notes: str, topic: str = "Topic") -> str:
-    """Generate simple quiz questions from sentences."""
+    """Generate up to 5 quiz questions that cover main ideas."""
     sents = sent_tokenize(preprocess_notes(notes))
     quiz = []
-    for sent in sents:
-        words = sent.split()
-        if len(words) > 5:
-            # Pick a random word (not too short) to blank out
-            word = random.choice([w for w in words if len(w) > 3])
-            question = sent.replace(word, "_____", 1)
-            quiz.append(f"Q: {question}\nA: {word}")
+    count = 0
+
+    for i, sent in enumerate(sents, start=1):
+        if count >= 5:  # limit to 5 questions
+            break
+
+        sent_lower = sent.lower()
+
+        if " is " in sent_lower or " was " in sent_lower:
+            quiz.append(f"Q{i}: What is {topic}?")
+            
+        elif "caused" in sent_lower or "led to" in sent_lower:
+            quiz.append(f"Q{i}: What were the major consequences of {topic}?")
+
+        elif "important" in sent_lower or "essential" in sent_lower:
+            quiz.append(f"Q{i}: Why is {topic} considered important?")
+
+        elif "involves" in sent_lower or "process" in sent_lower:
+            quiz.append(f"Q{i}: What process does {topic} involve?")
+
+        else:
+            quiz.append(f"Q{i}: Summarize the key point about {topic}.")
+
+        count += 1
+
     return "\n\n".join(quiz)
 
 # --- Streamlit App ---
