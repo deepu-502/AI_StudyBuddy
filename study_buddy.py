@@ -6,12 +6,11 @@ from nltk.tokenize import sent_tokenize
 # Ensure NLTK looks inside your bundled nltk_data folder
 nltk.data.path.append(os.path.join(os.path.dirname(__file__), "nltk_data"))
 
-# --- Preprocessing ---
 def preprocess_notes(notes: str) -> str:
     """Add spacing after punctuation for cleaner tokenization."""
     return notes.replace(".", ". ").replace("?", "? ").replace("!", "! ")
 
-# --- Summarization (highlight main points) ---
+# --- Summarization ---
 def summarize_notes(notes: str, topic: str = "Topic") -> str:
     """Summarize notes into highlighted main points."""
     sents = sent_tokenize(preprocess_notes(notes))
@@ -33,7 +32,7 @@ def summarize_notes(notes: str, topic: str = "Topic") -> str:
 
     return "\n".join(summary)
 
-# --- Quiz Generation (clean format, no duplicates) ---
+# --- Quiz Generation ---
 def generate_quiz(notes: str, topic: str = "Topic") -> str:
     """Generate quiz questions in clean format covering main ideas."""
     sents = sent_tokenize(preprocess_notes(notes))
