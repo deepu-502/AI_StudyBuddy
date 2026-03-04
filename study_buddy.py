@@ -1,57 +1,66 @@
+import os
+import nltk
+import random
 import streamlit as st
-import nltk, random
 from nltk.tokenize import sent_tokenize
 
-# Ensure NLTK resources
-def ensure_nltk_resources():
-    for r,p in [('punkt','tokenizers/punkt'),
-                ('averaged_perceptron_tagger','taggers/averaged_perceptron_tagger'),
-                ('wordnet','corpora/wordnet')]:
-        try:
-            nltk.data.find(p)
-        except LookupError:
-            nltk.download(r, quiet=True)
-ensure_nltk_resources()
+nltk.data.path.append(os.path.join(os.path.dirname(__file__), "nltk_data"))
 
 def preprocess_notes(notes):
     return notes.replace(".", ". ").replace("?", "? ").replace("!", "! ")
 
 def extract_subject(text, topic):
     words = text.split()
-    if len(words)>=2 and words[0][0].isupper() and words[1][0].isupper():
+    if len(words) >= 2 and words[0][0].isupper() and words[1][0].isupper():
         return " ".join(words[:2])
     return topic
 
 def summarize_notes(notes, topic="Topic"):
     sents = sent_tokenize(preprocess_notes(notes))
-    summary=[]
+    summary = []
     for s in sents[:6]:
-        subj=extract_subject(s,topic); lower=s.lower()
+        subj = extract_subject(s, topic)
+        lower = s.lower()
         if " is " in lower:
             summary.append(f"{subj} → {s.split(' is ',1)[1].strip()}")
         elif " are " in lower:
             summary.append(f"{subj} → {s.split(' are ',1)[1].strip()}")
         elif " involves" in lower:
-            summary.append(f"{subj} → involves{s.split(' involves',1)[1].strip()}")
+            summary.append(f"{subj} → involves {s.split(' involves',1)[1].strip()}")
         elif " uses" in lower or " use " in lower:
-            summary.append(f"{subj} → uses{s.split(' uses',1)[1].strip() if ' uses' in lower else s.split(' use ',1)[1].strip()}")
+            summary.append(f"{subj} → uses {s.split(' uses',1)[1].strip() if ' uses' in lower else s.split(' use ',1)[1].strip()}")
         elif " essential" in lower or " important" in lower:
             summary.append(f"{subj} → considered essential/important")
         else:
             summary.append(f"{subj} → {' '.join(s.split()[:8])}...")
-    return "Summary:\n"+"\n".join(f"- {p}" for p in summary)
+    return "Summary:\n" + "\n".join(f"- {p}" for p in summary)
 
 def generate_quiz(notes, topic="Topic"):
-    sents=sent_tokenize(preprocess_notes(notes)); quiz=[]; seen=set()
+    sents = sent_tokenize(preprocess_notes(notes))
+    quiz = []
+    seen = set()
     for s in sents:
-        subj=extract_subject(s,topic); lower=s.lower()
-        if " is " in lower: q=f"What is {subj}?"
-        elif " are " in lower: q=f"What are {subj}?"
-        elif " involves" in lower: q=f"What does {subj} involve?"
-        elif " uses" in lower or " use " in lower: q=f"How does {subj} use {s.split(' uses',1)[1].strip() if ' uses' in lower else s.split(' use ',1)[1].strip()}?"
-        elif " essential" in lower or " important" in lower: q=f"Why is {subj} important?"
-        else: q=random.choice([f"Explain: {subj}",f"Describe the role of {subj}",f"Why is {subj} significant?"])
-        if q not in seen: quiz.append(f"Q{len(quiz)+1}: {q}"); seen.add(q)
+        subj = extract_subject(s, topic)
+        lower = s.lower()
+        if " is " in lower:
+            q = f"What is {subj}?"
+        elif " are " in lower:
+            q = f"What are {subj}?"
+        elif " involves" in lower:
+            q = f"What does {subj} involve?"
+        elif " uses" in lower or " use " in lower:
+            q = f"How does {subj} use {s.split(' uses',1)[1].strip() if ' uses' in lower else s.split(' use ',1)[1].strip()}?"
+        elif " essential" in lower or " important" in lower:
+            q = f"Why is {subj} important?"
+        else:
+            q = random.choice([
+                f"Explain: {subj}",
+                f"Describe the role of {subj}",
+                f"Why is {subj} significant?"
+            ])
+        if q not in seen:
+            quiz.append(f"Q{len(quiz)+1}: {q}")
+            seen.add(q)
     return quiz
 
 # Streamlit UI
