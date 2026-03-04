@@ -20,52 +20,52 @@ def summarize_notes(notes: str, topic: str = "Topic") -> str:
     for sent in sents:
         sent_lower = sent.lower()
 
-        # Definitions / Overview
         if " is " in sent_lower or " was " in sent_lower:
             summary.append(f"- Definition/Overview: {sent.strip()}")
-
-        # Causes / Effects
         elif "caused" in sent_lower or "led to" in sent_lower:
             summary.append(f"- Cause/Effect: {sent.strip()}")
-
-        # Importance
         elif "important" in sent_lower or "essential" in sent_lower:
             summary.append(f"- Importance: {sent.strip()}")
-
-        # Process / Steps
         elif "involves" in sent_lower or "process" in sent_lower:
             summary.append(f"- Process: {sent.strip()}")
-
         else:
             summary.append(f"- Key Point: {sent.strip()}")
 
     return "\n".join(summary)
 
-# --- Quiz Generation (clean format, main ideas only) ---
+# --- Quiz Generation (clean format, no duplicates) ---
 def generate_quiz(notes: str, topic: str = "Topic") -> str:
-    """Generate up to 5 quiz questions in clean format covering main ideas."""
+    """Generate quiz questions in clean format covering main ideas."""
     sents = sent_tokenize(preprocess_notes(notes))
     quiz = []
-    count = 0
+    used_types = set()
+    q_num = 1
 
-    for i, sent in enumerate(sents, start=1):
-        if count >= 5:  # limit to 5 questions
-            break
-
+    for sent in sents:
         sent_lower = sent.lower()
 
-        if " is " in sent_lower or " was " in sent_lower:
-            quiz.append(f"Q{i}: What is {topic}?")
-        elif "caused" in sent_lower or "led to" in sent_lower:
-            quiz.append(f"Q{i}: What were the major consequences of {topic}?")
-        elif "important" in sent_lower or "essential" in sent_lower:
-            quiz.append(f"Q{i}: Why is {topic} considered important?")
-        elif "involves" in sent_lower or "process" in sent_lower:
-            quiz.append(f"Q{i}: What process does {topic} involve?")
-        else:
-            quiz.append(f"Q{i}: Summarize a key point about {topic}.")
+        if (" is " in sent_lower or " was " in sent_lower) and "definition" not in used_types:
+            quiz.append(f"Q{q_num}: What is {topic}?")
+            used_types.add("definition")
+            q_num += 1
 
-        count += 1
+        elif ("involves" in sent_lower or "process" in sent_lower) and "process" not in used_types:
+            quiz.append(f"Q{q_num}: What process does {topic} involve?")
+            used_types.add("process")
+            q_num += 1
+
+        elif ("caused" in sent_lower or "led to" in sent_lower) and "consequences" not in used_types:
+            quiz.append(f"Q{q_num}: What were the major consequences of {topic}?")
+            used_types.add("consequences")
+            q_num += 1
+
+        elif ("important" in sent_lower or "essential" in sent_lower) and "importance" not in used_types:
+            quiz.append(f"Q{q_num}: Why is {topic} considered important?")
+            used_types.add("importance")
+            q_num += 1
+
+        if q_num > 5:
+            break
 
     return "\n\n".join(quiz)
 
