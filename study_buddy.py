@@ -37,14 +37,13 @@ def summarize_notes(notes: str, topic: str = "Topic") -> str:
             summary.append(f"- Process: {sent.strip()}")
 
         else:
-            # fallback: keep as a general point
             summary.append(f"- Key Point: {sent.strip()}")
 
     return "\n".join(summary)
 
-# --- Quiz Generation (main ideas as questions) ---
+# --- Quiz Generation (clean format, main ideas only) ---
 def generate_quiz(notes: str, topic: str = "Topic") -> str:
-    """Generate up to 5 quiz questions that cover main ideas."""
+    """Generate up to 5 quiz questions in clean format covering main ideas."""
     sents = sent_tokenize(preprocess_notes(notes))
     quiz = []
     count = 0
@@ -55,22 +54,14 @@ def generate_quiz(notes: str, topic: str = "Topic") -> str:
 
         sent_lower = sent.lower()
 
-        # Definitions / Overview
         if " is " in sent_lower or " was " in sent_lower:
-            quiz.append(f"Q{i}: Define {topic} in your own words.")
-
-        # Causes / Effects
+            quiz.append(f"Q{i}: What is {topic}?")
         elif "caused" in sent_lower or "led to" in sent_lower:
             quiz.append(f"Q{i}: What were the major consequences of {topic}?")
-
-        # Importance
         elif "important" in sent_lower or "essential" in sent_lower:
             quiz.append(f"Q{i}: Why is {topic} considered important?")
-
-        # Process / Steps
         elif "involves" in sent_lower or "process" in sent_lower:
-            quiz.append(f"Q{i}: Describe the process involved in {topic}.")
-
+            quiz.append(f"Q{i}: What process does {topic} involve?")
         else:
             quiz.append(f"Q{i}: Summarize a key point about {topic}.")
 
