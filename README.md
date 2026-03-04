@@ -24,18 +24,25 @@ python -m pip install -r requirements.txt
 ```
 ---
 
+---
+📑 Demo with Sample Inputs
+
+This project includes a sample file inputs.txt with short notes on World War II, Electricity, and Photosynthesis.
+
+---
+---
 ▶️ Usage
 
 Run the program from the command line:
 
 ```bash
-python study_buddy.py
-```
-You’ll see an interactive menu:
-```
-Choose an option:
-1. Summarize Notes
-2. Generate Quiz
-3. Exit
+python -m streamlit run study_buddy.py
 
 ```
+Open the app (study_buddy.py) with Streamlit.
+
+Copy text from inputs.txt into the input box.
+
+Select a topic.
+
+View the summary and quiz questions generated.
